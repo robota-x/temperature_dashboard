@@ -1,4 +1,6 @@
 import boto3
+import traceback
+
 from uuid import uuid4
 from datetime import datetime
 
@@ -26,8 +28,8 @@ def log_entry(event, timestamp, uuid):
                 'Dimensions': [
                     {
                         'Name': 'sensor_id',
-                        'Value': sensor_id
-                    }
+                        'Value': sensor_id,
+                    },
                 ],
             },
             {
@@ -38,12 +40,13 @@ def log_entry(event, timestamp, uuid):
                 'Dimensions': [
                     {
                         'Name': 'sensor_id',
-                        'Value': sensor_id
-                    }
+                        'Value': sensor_id,
+                    },
                 ],
             },
         ]
     )
+
     log_to_s3(
         key=f'raw/{uuid}',
         body=f'{int(timestamp.timestamp())} : {event}'
@@ -59,13 +62,14 @@ def log_error(error, event, timestamp, uuid):
                 'Timestamp': timestamp,
                 'Value': 1,
                 'Unit': 'Count',
-            }
+            },
         ]
     )
 
+    t_back = traceback.format_exc()
     log_to_s3(
         key=f'error/{uuid}',
-        body=f'{timestamp} : {event} : {error}',
+        body=f'{timestamp} : {event} : {error} : {t_back}'
     )
 
 
