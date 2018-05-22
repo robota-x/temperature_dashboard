@@ -22,22 +22,24 @@ def log_entry(event):
             {
                 'MetricName': 'temperature',
                 'Timestamp': datetime.now(),
-                'Value': temperature,
-                'Unit': 'Celsius',
+                'Value': float(temperature),
+                'Unit': 'Count',
                 'Dimensions': [
                     {
-                        'sensor_id': sensor_id
+                        'Name': 'sensor_id',
+                        'Value': sensor_id
                     }
                 ],
             },
             {
                 'MetricName': 'temperature',
                 'Timestamp': datetime.now(),
-                'Value': humidity,
+                'Value': float(humidity),
                 'Unit': 'Percent',
                 'Dimensions': [
                     {
-                        'sensor_id': sensor_id
+                        'Name': 'sensor_id',
+                        'Value': sensor_id
                     }
                 ],
             },
@@ -47,6 +49,7 @@ def log_entry(event):
         key=f'raw/{uuid.uuid4()}',
         body=f'{int(time.time())};{event}'
     )
+
 
 def log_error(e, event):
     boto3.client('cloudwatch').put_metric_data(
