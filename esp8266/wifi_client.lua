@@ -20,12 +20,6 @@ function connect_wifi(ssid, pass)
     })
 end
 
-function credential_reader()
-    if file.open('wifi_credentials.txt') then
-        return string.gsub(file.readline(), '\n', ''), string.gsub(file.readline(), '\n', '')
-    end
-end
-
 function connection_success_handler(event)
     print('Connected to AP! ' .. event.SSID)
     connection_failure_count = nil
