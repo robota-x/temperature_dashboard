@@ -1,22 +1,7 @@
 import boto3
 import time
 import uuid
-import sys
 from datetime import datetime
-
-
-def log_to_cloudwatch(name, value, unit=None):
-    boto3.client('cloudwatch').put_metric_data(
-        Namespace='temperature_sensor',
-        MetricData=[
-            {
-                'MetricName': name,
-                'Timestamp': datetime.now(),
-                'Value': value,
-                'Unit': unit,
-            },
-        ]
-    )
 
 
 def log_to_s3(key, body):
@@ -28,28 +13,65 @@ def log_to_s3(key, body):
     )
 
 
-def log_error(e, event):
-    log_to_cloudwatch(
-        name='errorCount',
-        value=1,
-        unit='Count',
+def log_entry(event):
+    sensor_id, temperature, humidity = event.split(';')
+
+    boto3.client('cloudwatch').put_metric_data(
+        Namespace='temperature_sensor',
+        MetricData=[
+            {
+                'MetricName': 'temperature',
+                'Timestamp': datetime.now(),
+                'Value': temperature,
+                'Unit': 'Celsius',
+                'Dimensions': [
+                    {
+                        'sensor_id': sensor_id
+                    }
+                ],
+            },
+            {
+                'MetricName': 'temperature',
+                'Timestamp': datetime.now(),
+                'Value': humidity,
+                'Unit': 'Percent',
+                'Dimensions': [
+                    {
+                        'sensor_id': sensor_id
+                    }
+                ],
+            },
+        ]
     )
+    log_to_s3(
+        key=f'raw/{uuid.uuid4()}',
+        body=f'{int(time.time())};{event}'
+    )
+
+def log_error(e, event):
+    boto3.client('cloudwatch').put_metric_data(
+        Namespace='temperature_sensor',
+        MetricData=[
+            {
+                'MetricName': 'error_count',
+                'Timestamp': datetime.now(),
+                'Value': 1,
+                'Unit': 'Count',
+            }
+        ]
+    )
+
     log_to_s3(
         key=f'error/{uuid.uuid4()}',
         body=str(e),
     )
 
 
-def log_entry(event):
-    f'{int(time.time())};{event}'
-
-
 def lambda_handler(event, _):
     try:
-        log_to_s3(f'raw/{uuid.uuid4()}', event)
-        # log_to_cloudwatch(event)
+        log_entry(event)
         return 'All good'
 
-    except Exception as e:  
+    except Exception as e:
         log_error(e, event)
         return 'Something went wrong'
