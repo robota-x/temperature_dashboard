@@ -50,6 +50,6 @@ def lambda_handler(event, _):
         # log_to_cloudwatch(event)
         return 'All good'
 
-    except Exception as e:
+    except Exception as e:  
         log_error(e, event)
         return 'Something went wrong'
