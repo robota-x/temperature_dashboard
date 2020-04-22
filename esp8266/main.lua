@@ -1,35 +1,24 @@
+-- import settings
 dofile('config.lua')
 
+-- import functionality helpers
 require('ambient_read')
 require('wifi_client')
 require('data_uploader')
 
--- local temp, hum = ambient_read(DHT22_PIN)
--- print('temp: ' .. temp .. ' humidity: ' .. hum)
 
-function upload_callback(status, body, headers)
-    print('upload callback')
-
-    if status then
-        print(status)
-    end 
-    if body then
-        print(body)
-    end 
-    if headers then
-        print(headers)
-    end
+function deep_sleep()
+    node.dsleep(CYCLE_INTERVAL_SECONDS * 1000000)
 end
 
-function success_hand(event)
-    print('outer success' .. event.IP .. ' : ' .. event.gateway)
-
-    upload_stats(UPLOAD_ENDPOINT, 14, 24, upload_callback)
+function save_ambient_data()
+    print('in save_ambient_data')
+    local temperature, humidity = ambient_read(DHT22_PIN)
+    print(temperature, humidity)
+    upload_ambient_data(UPLOAD_ENDPOINT, temperature, humidity, deep_sleep)
 end
 
--- upload_stats(UPLOAD_ENDPOINT, 14, 24, upload_callback)
-
-connect_wifi(WIFI_SSID, WIFI_PASSWORD, success_hand)
-
--- print('now sleeping 10 seconds')
--- node.dsleep(10 * 1000000, 4)
+function main()
+    print('initialising wifi')
+    connect_wifi(WIFI_SSID, WIFI_PASSWORD, save_ambient_data)
+end

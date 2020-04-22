@@ -1,7 +1,4 @@
 print('power up, starting main.lua in 2000ms')
+require('main')
 
-function init_job()
-    dofile('main.lua')
-end
-
-tmr.create():alarm(2000, tmr.ALARM_SINGLE, init_job)
+tmr.create():alarm(2000, tmr.ALARM_SINGLE, main)
