@@ -1,12 +1,11 @@
--- function upload_stats(endpoint, temperature, humidity, callback)
---     http.post(
---         endpoint,
---         nil,
---         'Hello friends',
---         callback
---     )
--- end
+function upload_ambient_data(endpoint, api_token, temperature, humidity, callback)
+    print('uploading: ' .. temperature .. 'C ' .. humidity .. '% to ' .. endpoint)
 
-function upload_ambient_data(endpoint, temperature, humidity)
-    print('this would upload ' .. temperature .. ' ' .. humidity .. ' to ' .. endpoint)
+    local auth_header = 'Authorisation: Bearer ' .. api_token .. '\r\n'
+    http.post(
+        endpoint,
+        auth_header,
+        'Hello friends',
+        callback
+    )
 end
