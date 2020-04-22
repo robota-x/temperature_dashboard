@@ -1,2 +1,9 @@
-wifi_credentials.txt
+# secrets
+config.lua
+
+# python flasher
 env
+py[cod]
+
+# node uploader
+node_modules
